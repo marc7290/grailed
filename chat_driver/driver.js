@@ -4,6 +4,7 @@ const readline = require('readline');
 var myUserId;
 var theirUserId = null;
 var users = {};
+var serviceBaseUrl = 'http://localhost:3000';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -16,7 +17,7 @@ const rl = readline.createInterface({
 populateUsers(getUserLogin);
 
 function populateUsers(callback){
-	request('http://localhost:3000/api/chatusers', function(error, response, body){
+	request(serviceBaseUrl + '/api/chatusers', function(error, response, body){
   	if(!error && response.statusCode == 200){
 		JSON.parse(body).data.forEach(function(value) {
 			users[value.id] = value.name;
@@ -99,7 +100,7 @@ function createUser(callback){
 	rl.question("\nWhat is the user's name?\n", (answer) => {
 		request.post({
 			headers: {'content-type' : 'application/x-www-form-urlencoded'},
-			url:	'http://localhost:3000/api/chatusers',
+			url:	serviceBaseUrl + '/api/chatusers',
 			body:   "name=" + answer
 		}, function(error, response, body){
 			if(!error && response.statusCode == 200){
@@ -125,7 +126,7 @@ function sendMessage(){
 	rl.question("\nPlease enter your message to " + users[theirUserId] + ":\n", (answer) => {
 		request.post({
 			headers: {'content-type' : 'application/x-www-form-urlencoded'},
-			url:	'http://localhost:3000/api/messages',
+			url:	serviceBaseUrl + '/api/messages',
 			body:	"to_id=" + theirUserId + "&from_id=" + myUserId + "&text=" + answer + "&timestamp=" + moment(new Date().getTime()).format("YYYY-MM-DD HH:mm:ss")
 		}, function(error, response, body){
 		  	if(!error && response.statusCode == 200){
@@ -144,7 +145,7 @@ function viewHistory(){
 		determineCommand();
 	}
 	request.get({
-		url:	'http://localhost:3000/api/messages?my_id=' + myUserId + '&their_id=' + theirUserId,
+		url:	serviceBaseUrl + '/api/messages?my_id=' + myUserId + '&their_id=' + theirUserId,
 		body: 	'my_id=' + myUserId + '&their_id=' + theirUserId
 	}, function(error, response, body){
 		if(!error && response.statusCode == 200){
